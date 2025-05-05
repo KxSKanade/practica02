@@ -1,0 +1,13 @@
+<% layout('layouts/main', { title }) %>
+<h1><%= title %></h1>
+<form action="<%= action %>" method="POST">
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input name="nombre" class="form-control" value="<%= cliente?.nombre || '' %>" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Correo</label>
+    <input type="email" name="correo" class="form-control" value="<%= cliente?.correo || '' %>" required>
+  </div>
+  <button class="btn btn-success">Guardar</button>
+</form>

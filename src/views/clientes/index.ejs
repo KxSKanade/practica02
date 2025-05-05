@@ -1,0 +1,21 @@
+<% layout('layouts/main', { title: 'Clientes' }) %>
+<h1>Clientes</h1>
+<a href="/clientes/new" class="btn btn-primary mb-3">Nuevo Cliente</a>
+<table class="table table-striped">
+  <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Acciones</th></tr></thead>
+  <tbody>
+    <% clientes.forEach(c => { %>
+      <tr>
+        <td><%= c.id %></td>
+        <td><%= c.nombre %></td>
+        <td><%= c.correo %></td>
+        <td>
+          <a href="/clientes/<%= c.id %>/edit" class="btn btn-sm btn-warning">Editar</a>
+          <form action="/clientes/<%= c.id %>?_method=DELETE" method="POST" class="d-inline">
+            <button class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
