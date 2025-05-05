@@ -12,8 +12,8 @@ app.use(methodOverride('_method')); // Para soportar métodos PUT y DELETE
 app.use('/uploads', express.static('public/uploads')); // Carpeta estática para archivos
 
 // Importar routers
-const clientesRouter = require('./routes/clientes');
-const ordenesRouter = require('./routes/ordenes');
+const clientesRouter = require('./src/routes/clientes');
+const ordenesRouter = require('./src/routes/ordenes');
 
 // Validar que los routers sean funciones antes de usarlos
 if (typeof clientesRouter === 'function') {
