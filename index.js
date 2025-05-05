@@ -1,39 +1,33 @@
 const express = require('express');
 require('dotenv').config();
 const methodOverride = require('method-override');
-
-// Crear instancia de la aplicación
-const app = express();
-
-// Configurar middlewares globales
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method')); // Para soportar métodos PUT y DELETE
-app.use('/uploads', express.static('public/uploads')); // Carpeta estática para archivos
-
-// Importar routers
+const path = require('path');
 const clientesRouter = require('./src/routes/clientes');
 const ordenesRouter = require('./src/routes/ordenes');
 
-// Validar que los routers sean funciones antes de usarlos
-if (typeof clientesRouter === 'function') {
-  app.use('/api/clientes', clientesRouter);
-} else {
-  console.error('Error: clientesRouter no es una función válida.');
-}
+const app = express();
 
-if (typeof ordenesRouter === 'function') {
-  app.use('/api/ordenes', ordenesRouter);
-} else {
-  console.error('Error: ordenesRouter no es una función válida.');
-}
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));  // Para Bootstrap u otros archivos de node_modules
+app.use(express.static(path.join(__dirname, '/src/public')));  // Para archivos estáticos
 
-// Ruta de prueba para validar el servidor
+// Configuración de EJS
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'src', 'views'));
+
+// Rutas
+app.use('/api/clientes', clientesRouter);
+app.use('/api/ordenes', ordenesRouter);
+
+// Ruta de inicio
 app.get('/', (req, res) => {
-  res.send('Servidor funcionando correctamente.');
+  res.render('home', { title: 'Inicio' });
 });
 
-// Iniciar servidor
+// Iniciar el servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);

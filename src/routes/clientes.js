@@ -1,22 +1,76 @@
-// Al inicio del archivo:
+// src/routes/clientes.js
 const express = require('express');
 const router = express.Router();
-const methodOverride = require('method-override');
-router.use(methodOverride('_method'));
+const pool = require('../db');
 
-// Ruta lista:
+// Obtener todos los clientes
 router.get('/', async (req, res) => {
-  const [clientes] = await pool.query('SELECT * FROM Clientes');
-  res.render('clientes/index', { clientes });
+  try {
+    const [rows] = await pool.query('SELECT * FROM clientes');
+    res.render('clientes/index', { title: 'Clientes', clientes: rows });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al obtener los clientes.');
+  }
 });
 
-// Formulario nuevo:
+// Mostrar el formulario para crear cliente
 router.get('/new', (req, res) => {
-  res.render('clientes/form', { title: 'Nuevo Cliente', action: '/clientes' });
+  res.render('clientes/form', { title: 'Crear Cliente' });
 });
 
-// Formulario editar:
-router.get('/:id/edit', async (req, res) => {
-  const [[cliente]] = await pool.query('SELECT * FROM Clientes WHERE id = ?', [req.params.id]);
-  res.render('clientes/form', { title: 'Editar Cliente', action: `/clientes/${cliente.id}?_method=PUT`, cliente });
+// Crear un cliente
+router.post('/', async (req, res) => {
+  const { nombre, correo, telefono, direccion } = req.body;
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO clientes (nombre, correo) VALUES (?, ?)',
+      [nombre, correo]
+    );
+    res.redirect('/api/clientes');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al crear el cliente.');
+  }
 });
+
+// Obtener los datos de un cliente para editar
+router.get('/edit/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [cliente] = await pool.query('SELECT * FROM clientes WHERE id = ?', [id]);
+    res.render('clientes/edit', { title: 'Editar Cliente', cliente: cliente[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al obtener los datos del cliente.');
+  }
+});
+
+// Actualizar un cliente
+router.post('/edit/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre, correo, } = req.body;
+  try {
+    await pool.query(
+      'UPDATE clientes SET nombre = ?, correo = ? WHERE id = ?',
+      [nombre, correo, id]
+    );
+    res.redirect('/api/clientes');  // Redirige a la lista de clientes
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al actualizar el cliente.');
+  }
+});
+// Eliminar un cliente
+router.post('/delete/:id', async (req, res) => {
+  const { id } = req.params;  // Obtener el id del cliente desde los parámetros de la URL
+  try {
+    await pool.query('DELETE FROM clientes WHERE id = ?', [id]);
+    res.redirect('/api/clientes');  // Redirigir a la lista de clientes después de eliminar
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al eliminar el cliente.');
+  }
+});
+
+module.exports = router;

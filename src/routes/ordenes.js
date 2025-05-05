@@ -1,107 +1,132 @@
-// src/routes/ordenes.js
 const express = require('express');
-const upload = require('../middlewares/upload');
-const { body, validationResult } = require('express-validator');
-const pool = require('../db');
 const router = express.Router();
+const pool = require('../db');  // Asegúrate de que 'db.js' maneja la conexión a la base de datos
+const multer = require('multer');
+const path = require('path');
 
-/**
- * GET /api/ordenes
- * Listar todas las órdenes con datos de cliente
- */
+// Configuración de multer para la carga de imágenes
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const destinationPath = path.join(__dirname, '../public/images');
+    console.log('Ruta de destino:', destinationPath);  // Asegúrate de que esta es la ruta correcta
+    cb(null, destinationPath); // Guardar en public/images
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + path.extname(file.originalname); // Nombre único para evitar colisiones
+    console.log('Nombre del archivo:', file.fieldname + '-' + uniqueSuffix);  // Asegúrate de que el nombre sea correcto
+    cb(null, file.fieldname + '-' + uniqueSuffix);
+  }
+});
+
+
+// Filtro para asegurarse que solo imágenes sean aceptadas
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png|gif/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb('Error: Solo se permiten imágenes');
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter
+}).single('imagen');
+
+// Ruta para obtener las órdenes
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT o.id, o.fecha, o.total, o.imagen,
-              c.id AS cliente_id, c.nombre AS cliente_nombre, c.correo AS cliente_correo
-       FROM Ordenes o
-       JOIN Clientes c ON o.cliente_id = c.id`
-    );
-    res.json(rows);
+    const result = await pool.query('SELECT o.id, c.nombre AS cliente, o.producto, o.cantidad, o.total, o.imagen FROM ordenes o JOIN clientes c ON o.id_cliente = c.id');
+    res.render('ordenes/index', { ordenes: result[0], title: 'Lista de Órdenes' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener órdenes' });
+    console.error('Error al obtener órdenes: ', err);
+    return res.status(500).send('Error al obtener órdenes');
   }
 });
 
-/**
- * POST /api/ordenes
- * Crear una orden (con imagen)
- */
-router.post(
-  '/',
-  upload.single('imagen'),
-  [
-    body('fecha').isDate().withMessage('Fecha inválida'),
-    body('total').isFloat({ gt: 0 }).withMessage('Total debe ser mayor a 0'),
-    body('cliente_id').isInt().withMessage('Cliente inválido')
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ errors: errors.array() });
-
-    const { fecha, total, cliente_id } = req.body;
-    const imagen = req.file ? req.file.filename : null;
-
-    try {
-      const [result] = await pool.query(
-        'INSERT INTO Ordenes (fecha, total, cliente_id, imagen) VALUES (?, ?, ?, ?)',
-        [fecha, total, cliente_id, imagen]
-      );
-      res.status(201).json({ id: result.insertId, fecha, total, cliente_id, imagen });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Error al crear orden' });
-    }
+// Ruta para mostrar el formulario de nueva orden
+router.get('/new', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM clientes'); // Obtenemos todos los clientes
+    res.render('ordenes/form', { clientes: result[0], title: 'Crear Orden' });  // Renderiza la vista form.ejs
+  } catch (err) {
+    console.error('Error al obtener clientes: ', err);
+    return res.status(500).send('Error al obtener clientes');
   }
-);
+});
 
-/**
- * PUT /api/ordenes/:id
- * Editar una orden (posible nueva imagen)
- */
-router.put(
-  '/:id',
-  upload.single('imagen'),
-  [
-    body('fecha').optional().isDate(),
-    body('total').optional().isFloat({ gt: 0 }),
-    body('cliente_id').optional().isInt()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ errors: errors.array() });
+// Ruta para insertar una nueva orden (con imagen)
+router.post('/', upload, async (req, res) => {
+  const { id_cliente, producto, cantidad, total } = req.body;
+  const imagen = req.file ? '/images/' + req.file.filename : null; // Obtiene la ruta de la imagen (si existe)
 
-    const { id } = req.params;
-    const data = { ...req.body };
-    if (req.file) data.imagen = req.file.filename;
+  console.log('Datos recibidos:', req.body);
+  console.log('Imagen guardada:', imagen);  // Verifica si la imagen se guarda correctamente
 
-    try {
-      await pool.query('UPDATE Ordenes SET ? WHERE id = ?', [data, id]);
-      res.json({ message: 'Orden actualizada' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Error al actualizar orden' });
-    }
+  // Asegurarse de que los datos sean correctos antes de insertar
+  if (!id_cliente || !producto || !cantidad || !total) {
+    return res.status(400).send('Todos los campos son obligatorios');
   }
-);
 
-/**
- * DELETE /api/ordenes/:id
- * Eliminar una orden
- */
-router.delete('/:id', async (req, res) => {
+  try {
+    // Insertar la nueva orden con la imagen
+    await pool.query(
+      'INSERT INTO ordenes (id_cliente, producto, cantidad, total, imagen) VALUES (?, ?, ?, ?, ?)',
+      [id_cliente, producto, cantidad, total, imagen]
+    );
+    res.redirect('/api/ordenes'); // Redirige a la lista de órdenes
+  } catch (err) {
+    console.error('Error al insertar la orden: ', err);
+    return res.status(500).send('Error al insertar la orden');
+  }
+});
+
+
+// Ruta para obtener los datos de la orden y mostrar en un formulario para editar
+router.get('/edit/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM Ordenes WHERE id = ?', [id]);
-    res.json({ message: 'Orden eliminada' });
+    const [orden] = await pool.query('SELECT * FROM ordenes WHERE id = ?', [id]);
+    const clientes = await pool.query('SELECT * FROM clientes');
+    res.render('ordenes/edit', { orden: orden[0], clientes: clientes[0], title: 'Editar Orden' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al eliminar orden' });
+    console.error('Error al obtener la orden: ', err);
+    return res.status(500).send('Error al obtener la orden');
   }
 });
 
-// Exporta el router para usar en src/index.js
+// Ruta para actualizar la orden (con imagen)
+router.post('/edit/:id', upload, async (req, res) => {
+  const { id } = req.params;
+  const { id_cliente, producto, cantidad, total } = req.body;
+  const imagen = req.file ? '/images/' + req.file.filename : null;  // Si se sube una nueva imagen
+
+  try {
+    await pool.query(
+      'UPDATE ordenes SET id_cliente = ?, producto = ?, cantidad = ?, total = ?, imagen = ? WHERE id = ?',
+      [id_cliente, producto, cantidad, total, imagen, id]
+    );
+    res.redirect('/api/ordenes');
+  } catch (err) {
+    console.error('Error al actualizar la orden: ', err);
+    return res.status(500).send('Error al actualizar la orden');
+  }
+});
+
+// Ruta para eliminar una orden
+router.post('/delete/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM ordenes WHERE id = ?', [id]);
+    res.redirect('/api/ordenes');
+  } catch (err) {
+    console.error('Error al eliminar la orden: ', err);
+    return res.status(500).send('Error al eliminar la orden');
+  }
+});
+
 module.exports = router;

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a la Página Principal</title>
+
+    <!-- Vincula Bootstrap desde un CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-pzjw8f+ua7Kw1TIq0VdGhyRzK3hLg6gsF5ZT5u5bcD0Ifx2ygzJ5y6pt+q1p4YyF" crossorigin="anonymous">
+    
+    <!-- Vincula Tailwind CSS desde un CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/styles.css"> <!-- Vincula tu archivo CSS si tienes -->
+</head>
+<body class="bg-gray-100">
+    <div class="container mt-5">
+        <h2 class="text-center text-primary my-4">Bienvenido a la Página Principal</h2>
+
+        <div class="text-center">
+            <!-- Botón para ver clientes con Tailwind y Bootstrap -->
+            <a href="/api/clientes" class="btn btn-primary btn-lg mx-2 mb-3 bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600">
+                Ver Clientes
+            </a>
+
+            <!-- Botón para ver órdenes con Tailwind y Bootstrap -->
+            <a href="/api/ordenes" class="btn btn-success btn-lg mx-2 mb-3 bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600">
+                Ver Órdenes
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy1v4dAwgPp6a0/7Tx4xw7Pjd6a5vjjF7QUCkG2p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0VdGhyRzK3hLg6gsF5ZT5u5bcD0Ifx2ygzJ5y6pt+q1p4YyF" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-2fpzHXXZWh3bpqZTaaOsA1sijB+4u6V5t9tJ9Iu5lOLzzfRUWyoJ7zDkhY5Uofg3" crossorigin="anonymous"></script>
+</body>
+</html>

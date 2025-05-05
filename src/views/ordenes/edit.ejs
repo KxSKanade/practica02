@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Orden</title>
+
+    <!-- Vincula Tailwind CSS desde el CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto mt-10 p-5 bg-white rounded-lg shadow-lg">
+        <h1 class="text-3xl font-semibold text-center text-blue-600 mb-6">Editar Orden</h1>
+        <form action="/api/ordenes/edit/<%= orden.id %>" method="POST" enctype="multipart/form-data">
+
+            <!-- Select Cliente -->
+            <div class="mb-4">
+                <label for="id_cliente" class="block text-gray-700 font-medium">Seleccionar Cliente:</label>
+                <select name="id_cliente" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <% clientes.forEach(cliente => { %>
+                        <option value="<%= cliente.id %>" <%= cliente.id == orden.id_cliente ? 'selected' : '' %>><%= cliente.nombre %> (ID: <%= cliente.id %>)</option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <!-- Producto -->
+            <div class="mb-4">
+                <label for="producto" class="block text-gray-700 font-medium">Producto:</label>
+                <input type="text" name="producto" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="<%= orden.producto %>" required>
+            </div>
+
+            <!-- Cantidad -->
+            <div class="mb-4">
+                <label for="cantidad" class="block text-gray-700 font-medium">Cantidad:</label>
+                <input type="number" name="cantidad" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="<%= orden.cantidad %>" required>
+            </div>
+
+            <!-- Total -->
+            <div class="mb-6">
+                <label for="total" class="block text-gray-700 font-medium">Total:</label>
+                <input type="number" step="0.01" name="total" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="<%= orden.total %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="imagen">Imagen:</label>
+                <input type="file" name="imagen" class="form-control">
+            </div>
+
+            <!-- Botón para guardar cambios -->
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Guardar Cambios
+            </button>
+        </form>
+
+        <!-- Botón para volver -->
+        <div class="mt-4 text-center">
+            <a href="/api/ordenes" class="text-blue-600 hover:text-blue-800 text-lg">Volver a la Lista de Órdenes</a>
+        </div>
+    </div>
+
+</body>
+</html>
