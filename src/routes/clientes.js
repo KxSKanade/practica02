@@ -3,16 +3,22 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// Obtener todos los clientes
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM clientes');
-    res.render('clientes/index', { title: 'Clientes', clientes: rows });
+    const result = await pool.query('SELECT * FROM clientes');
+    const clientes = result[0]; // Accede a las filas
+
+    if (!clientes || clientes.length === 0) {
+      return res.render('clientes/index', { title: 'Clientes', clientes: [] });
+    }
+
+    res.render('clientes/index', { title: 'Clientes', clientes });
   } catch (error) {
     console.error(error);
     res.status(500).send('Error al obtener los clientes.');
   }
 });
+
 
 // Mostrar el formulario para crear cliente
 router.get('/new', (req, res) => {
@@ -21,7 +27,7 @@ router.get('/new', (req, res) => {
 
 // Crear un cliente
 router.post('/', async (req, res) => {
-  const { nombre, correo, telefono, direccion } = req.body;
+  const { nombre, correo} = req.body;
   try {
     const [result] = await pool.query(
       'INSERT INTO clientes (nombre, correo) VALUES (?, ?)',

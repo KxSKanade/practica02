@@ -20,21 +20,24 @@
                 </tr>
             </thead>
             <tbody>
-                <% clientes.forEach(cliente => { %>
-                    <tr class="border-b">
-                        <td class="px-4 py-2"><%= cliente.nombre %></td>
-                        <td class="px-4 py-2"><%= cliente.correo %></td>
-                        <td class="px-4 py-2">
-                            <!-- Botón para editar -->
-                            <a href="/api/clientes/edit/<%= cliente.id %>" class="bg-yellow-400 text-white px-3 py-1 rounded-lg">Editar</a>
-                            
-                            <!-- Botón para eliminar -->
-                            <form action="/api/clientes/delete/<%= cliente.id %>" method="POST" class="inline-block">
-                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded-lg">Eliminar</button>
-                            </form>
-                        </td>
+                <% if (clientes.length === 0) { %>
+                    <tr>
+                        <td colspan="3" class="px-4 py-2 text-center">No hay clientes registrados.</td>
                     </tr>
-                <% }) %>
+                <% } else { %>
+                    <% clientes.forEach(cliente => { %>
+                        <tr class="border-b">
+                            <td class="px-4 py-2"><%= cliente.nombre %></td>
+                            <td class="px-4 py-2"><%= cliente.correo %></td>
+                            <td class="px-4 py-2">
+                                <a href="/api/clientes/edit/<%= cliente.id %>" class="bg-yellow-400 text-white px-3 py-1 rounded-lg">Editar</a>
+                                <form action="/api/clientes/delete/<%= cliente.id %>" method="POST" class="inline-block">
+                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded-lg">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } %>
             </tbody>
         </table>
 

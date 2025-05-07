@@ -41,12 +41,19 @@ const upload = multer({
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT o.id, c.nombre AS cliente, o.producto, o.cantidad, o.total, o.imagen FROM ordenes o JOIN clientes c ON o.id_cliente = c.id');
-    res.render('ordenes/index', { ordenes: result[0], title: 'Lista de Órdenes' });
+    const ordenes = result[0];  // Accede a las filas de la consulta
+
+    if (!ordenes || ordenes.length === 0) {
+      return res.render('ordenes/index', { title: 'Órdenes', ordenes: [] });
+    }
+
+    res.render('ordenes/index', { title: 'Órdenes', ordenes });
   } catch (err) {
     console.error('Error al obtener órdenes: ', err);
     return res.status(500).send('Error al obtener órdenes');
   }
 });
+
 
 // Ruta para mostrar el formulario de nueva orden
 router.get('/new', async (req, res) => {
