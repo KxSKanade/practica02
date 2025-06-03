@@ -2,7 +2,6 @@
   "name": "frontend-products",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://backendexamen-lzcc.onrender.com",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

@@ -13,40 +13,41 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar todos los productos al montar
   useEffect(() => {
+    const baseURL = process.env.REACT_APP_API_URL || '';
+
     axios
-      .get('/api/products')
+      .get(`${baseURL}/api/products`)
       .then((response) => {
-        if (response.data && response.data.success && Array.isArray(response.data.data)) {
-          setProducts(response.data.data);
+        const data = response.data;
+        if (data?.success && Array.isArray(data.data)) {
+          setProducts(data.data);
         } else {
-          console.error('Estructura inesperada en la respuesta:', response.data);
+          console.error('Estructura inesperada en la respuesta:', data);
           setError('La API devolvió una respuesta inesperada.');
         }
-        setLoading(false);
       })
       .catch((err) => {
         console.error('Error en la solicitud GET /api/products:', err.response || err.message || err);
         setError('Hubo un problema al cargar los productos. Inténtalo más tarde.');
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
 
   // Función para eliminar un producto
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
 
-    axios
-      .delete(`/api/products/${id}`)
-      .then(() => {
-        // Remover localmente el producto eliminado
-        setProducts((prev) => prev.filter((p) => p.id !== id));
-      })
-      .catch((err) => {
-        console.error('Error eliminando producto:', err.response || err.message || err);
-        alert('No se pudo eliminar el producto. Intenta más tarde.');
-      });
+    const baseURL = process.env.REACT_APP_API_URL || '';
+    try {
+      await axios.delete(`${baseURL}/api/products/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error('Error eliminando producto:', err.response || err.message || err);
+      alert('No se pudo eliminar el producto. Intenta más tarde.');
+    }
   };
 
   // Función para cerrar sesión

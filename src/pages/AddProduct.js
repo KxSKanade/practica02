@@ -1,3 +1,4 @@
+// src/pages/AddProduct.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -32,7 +33,8 @@ const AddProduct = () => {
 
     setLoading(true);
     try {
-      await axios.post('/api/products', {
+      const baseURL = process.env.REACT_APP_API_URL || '';
+      await axios.post(`${baseURL}/api/products`, {
         name: form.name,
         description: form.description,
         price: parseFloat(form.price),
@@ -51,11 +53,11 @@ const AddProduct = () => {
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-10">
       <div className="bg-white shadow-lg rounded-xl w-full max-w-lg p-8">
         <button
-            onClick={() => navigate(-1)}
-            className="mb-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium self-start max-w-lg"
-          >
-            ← Volver
-          </button>
+          onClick={() => navigate(-1)}
+          className="mb-6 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium self-start max-w-lg"
+        >
+          ← Volver
+        </button>
         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           Agregar Nuevo Producto
         </h1>
@@ -74,8 +76,7 @@ const AddProduct = () => {
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 
-                         focus:outline-none focus:ring-2 focus:ring-gray-800"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800"
             />
           </div>
           <div>
@@ -86,8 +87,7 @@ const AddProduct = () => {
               name="description"
               value={form.description}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 
-                         focus:outline-none focus:ring-2 focus:ring-gray-800 resize-none h-24"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800 resize-none h-24"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -101,8 +101,7 @@ const AddProduct = () => {
                 name="price"
                 value={form.price}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 
-                           focus:outline-none focus:ring-2 focus:ring-gray-800"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800"
               />
             </div>
             <div>
@@ -114,8 +113,7 @@ const AddProduct = () => {
                 name="stock"
                 value={form.stock}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 
-                           focus:outline-none focus:ring-2 focus:ring-gray-800"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800"
               />
             </div>
           </div>

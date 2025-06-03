@@ -12,30 +12,28 @@ const Home = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // En producción React leerá esta variable de entorno:
-    // si no existe (en dev) queda como cadena vacía
     const baseURL = process.env.REACT_APP_API_URL || '';
 
     axios
       .get(`${baseURL}/api/products`)
       .then((response) => {
-        console.log('⚡ response.data:', response.data);
-        // Extraemos el arreglo que está dentro de `data`
-        const lista = response.data.data;
-        if (Array.isArray(lista)) {
-          setProducts(lista);
+        // Se espera que response.data tenga la forma: { success: true, data: [...] }
+        const data = response.data;
+        if (data?.success && Array.isArray(data.data)) {
+          setProducts(data.data);
         } else {
           setError('La API devolvió una respuesta inesperada.');
         }
       })
       .catch((err) => {
-        console.error(err);
+        console.error('Error al cargar productos:', err);
         setError('Hubo un problema al cargar los productos. Inténtalo más tarde.');
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [addToCart]);
+  }, []);
+
   if (loading) {
     return (
       <p className="p-6 text-center text-lg text-gray-700">
@@ -43,6 +41,7 @@ const Home = () => {
       </p>
     );
   }
+
   if (error) {
     return (
       <p className="p-6 text-center text-lg text-red-600">
