@@ -15,13 +15,13 @@ const EditProduct = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  // Cargar datos del producto al montar
   useEffect(() => {
     axios
       .get(`/api/products/${id}`)
       .then((response) => {
-        if (response.data && response.data.success && response.data.data) {
-          const prod = response.data.data;
+        const data = response.data;
+        if (data?.success && typeof data.data === 'object' && data.data !== null) {
+          const prod = data.data;
           setForm({
             name: prod.name,
             description: prod.description,
@@ -29,6 +29,7 @@ const EditProduct = () => {
             stock: prod.stock
           });
         } else {
+          console.error('Estructura inesperada en la respuesta:', data);
           setError('No se encontró el producto.');
         }
         setLoading(false);
@@ -40,13 +41,11 @@ const EditProduct = () => {
       });
   }, [id]);
 
-  // Manejo de inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Envío del formulario de edición
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -63,9 +62,8 @@ const EditProduct = () => {
         description: form.description,
         price: parseFloat(form.price),
         stock: parseInt(form.stock, 10)
-        // image_url no lo cambiamos aquí
       });
-      navigate('/admin'); // Volver al panel de Admin
+      navigate('/admin');
     } catch (err) {
       console.error('Error actualizando producto:', err.response || err.message || err);
       setError('No se pudo actualizar el producto. Intenta más tarde.');
@@ -92,7 +90,6 @@ const EditProduct = () => {
   return (
     <div className="flex justify-center items-center py-10 bg-gray-100 min-h-screen">
       <div className="bg-white shadow-lg rounded-xl w-full max-w-lg p-8">
-        {/* Botón para retroceder */}
         <button
           onClick={() => navigate(-1)}
           className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 font-medium"
