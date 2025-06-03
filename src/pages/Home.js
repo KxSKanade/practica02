@@ -11,12 +11,12 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+    useEffect(() => {
     axios
-      .get('/api/products')
+      .get('https://backendexamen-lzcc.onrender.com/api/products')
       .then((response) => {
-        if (response.data && response.data.success && Array.isArray(response.data.data)) {
-          setProducts(response.data.data);
+        if (response.data && Array.isArray(response.data)) {
+          setProducts(response.data);
         } else {
           setError('La API devolvió una respuesta inesperada.');
         }
@@ -27,6 +27,7 @@ const Home = () => {
         setLoading(false);
       });
   }, []);
+
 
   if (loading) {
     return (
