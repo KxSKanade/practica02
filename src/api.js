@@ -1,13 +1,6 @@
-// src/api.js
-const baseURL =
-  process.env.NODE_ENV === "development"
-    ? ""                      // en dev usa proxy
-    : process.env.REACT_APP_API_URL; // en prod usa la URL real
+const API_URL = process.env.REACT_APP_API_URL || "";
 
 export function getProductos() {
-  return fetch(
-    process.env.NODE_ENV === "development"
-      ? "/productos"
-      : `${baseURL}/productos`
-  ).then(res => res.json());
+  return fetch(`${API_URL}/productos`)
+    .then(res => res.json());
 }
