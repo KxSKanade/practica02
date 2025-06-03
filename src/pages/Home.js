@@ -11,24 +11,31 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-    useEffect(() => {
+  useEffect(() => {
+    // En producción React leerá esta variable de entorno:
+    // si no existe (en dev) queda como cadena vacía
+    const baseURL = process.env.REACT_APP_API_URL || '';
+
     axios
-      .get('https://backendexamen-lzcc.onrender.com/api/products')
+      .get(`${baseURL}/api/products`)
       .then((response) => {
-        if (response.data && Array.isArray(response.data)) {
-          setProducts(response.data);
+        console.log('⚡ response.data:', response.data);
+        // Extraemos el arreglo que está dentro de `data`
+        const lista = response.data.data;
+        if (Array.isArray(lista)) {
+          setProducts(lista);
         } else {
           setError('La API devolvió una respuesta inesperada.');
         }
-        setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         setError('Hubo un problema al cargar los productos. Inténtalo más tarde.');
+      })
+      .finally(() => {
         setLoading(false);
       });
-  }, []);
-
-
+  }, [addToCart]);
   if (loading) {
     return (
       <p className="p-6 text-center text-lg text-gray-700">
